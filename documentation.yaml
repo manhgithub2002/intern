@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: Task No.1 - Tinamys - Mentor(duong.pt)
+  description: |-
+    # TABLE OF CONTENT
+
+    ## Cookie, Session, Local Storage
+
+    - Lý thuyết [`Notion link`](https://www.notion.so/2-1-Local-Storage-Session-Cookies-909dd6dfa51641bd9da71f0eb33fbc56?pvs=4)
+
+    - **Tóm tắt:**
+
+    | Cookie 	| Seesion 	|
+    |---	|---	|
+    | Lưu trên trình duyệt người dùng 	| Lưu trên server 	|  
+    | Có thể truy cập và chỉnh sửa bởi client 	| Client không thể chỉnh sửa và truy cập 	|  	
+    | Có thời gian tồn tại quy định bởi nhà phát triển 	| Tồn tại cho đến client tắt trình duyệt 	| 
+    | Phù hợp với thông tin dài hạn, không nhạy cảm 	| Phù hợp cho các lưu thông tin nhạy cảm, tạm thời 	| 
+
+
+    ## Token-based Authentication
+
+    - Lý thuyết [`Notion link`](https://www.notion.so/1-2-Authenticator-Ph-n-2-080c587e7d844cbc9d72a8571f820e49?pvs=4)
+
+    - **Tóm tắt:**
+    
+      Một quá trình Authentication gồm có 3 phần chính:
+
+      1. **Sinh dấu hiệu:** Đây là việc chúng ta quyết định xem dùng dấu hiệu gì, tạo ra dấu hiệu đó như thế nào. Một quá trình authentication có thể có sự xuất hiện của nhiều dấu hiệu, ví dụ username/password, user token, api key,... Các dấu hiệu này sẽ có cách sinh ra khác nhau, quy ước sử dụng khác nhau.
+
+      2. **Lưu trữ dấu hiệu:** Đây là việc ứng dụng sẽ quyết định lưu trữ dấu hiệu này ở đâu, ở cả server và client, thông qua vị trí nào trên bản tin HTTP,...
+
+      3. **Kiểm tra dấu hiệu:** Đây là việc ứng dụng của chúng ta kiểm tra lại tính hợp lệ của dấu hiệu, đối chiếu xem dấu hiệu này là của người dùng nào,...
+
+    ## Mã hóa password
+
+    - Trong code sử dụng mã hóa với thư viện `Argon2`
+
+    ## Swagger
+
+    - Là một documentation giúp Back-end Development có thể present được những thứ mình làm và nó cũng là một tài liệu để người khác có cái nhìn  tổng quát hơn, hiểu được code của người viết code.
+
+    ## Middleware
+
+    -Trong code sử dụng cookie kết hợp với JWT làm Middleware
+
+    ## Package upload file
+
+    -Sử dụng thư viện multer để nhận file và xlsx để đọc file và lưu vào DB
+
+    ## Redis
+  version: 1.0.11
+servers:
+  - url: http://localhost:3006/api
+tags:
+  - name: auth
+    description: Authentication
+  - name: refresh token
+    description: Refresh token when accessTokem expires
+  - name: user
+    description: Everything about Authentication
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: User rigister account
+      requestBody:
+        description: Rigister information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullname:
+                  type: string
+                  example: Vũ Xuân Mạnh
+                username:
+                  type: string
+                  example: manh.vx.ptit
+                email:
+                  type: string
+                  example: manh.vx@tinasoft.com.vn
+                password:
+                  type: string
+                  example: 123
+      responses:
+        '200':
+          description: User registration successful!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message: 
+                    type: string
+                    example: User registration successful!
+                  user:
+                    type: object
+                    properties:
+                      fullname:
+                        type: string
+                        example: Vũ Xuân Mạnh
+                      username:
+                        type: string
+                        example: manh.vx.ptit
+                      email:
+                        type: string
+                        example: manh.vx@tinasoft.com.vn
+                      password:
+                        type: string
+                        example: $argon2id$v=19$m=65536,t=3,p=4$kcUN0ygXjFeO0dTkxGSMxg$fO5eoZ9/HTkPlU2X2NmPTlRaZH3lGqJsJz3tcTPJaQA
+                      id:
+                        type: number
+                        example: 1
+                      tokenVersion::
+                        type: number
+                        example: 0
+        '409':
+          description: Username is existed!
+        '500':
+          description: Fail to register!
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Logs user into the system
+      requestBody:
+        description: Login information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: manh.vx.ptit
+                password:
+                  type: string
+                  example: 123
+      responses:
+        '200':
+          description: Login successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message: 
+                    type: string
+                    example: Login successfully!
+                  user:
+                    type: object
+                    properties:
+                      fullname:
+                        type: string
+                        example: Vũ Xuân Mạnh
+                      username:
+                        type: string
+                        example: manh.vx.ptit
+                      email:
+                        type: string
+                        example: manh.vx@tinasoft.com.vn
+                      password:
+                        type: string
+                        example: $argon2id$v=19$m=65536,t=3,p=4$kcUN0ygXjFeO0dTkxGSMxg$fO5eoZ9/HTkPlU2X2NmPTlRaZH3lGqJsJz3tcTPJaQA
+                      id:
+                        type: number
+                        example: 1
+                      tokenVersion::
+                        type: number
+                        example: 0
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTcwNzA1NzA1NiwiZXhwIjoxNzA3MDU3MDY2fQ.MkGRoKaVxlC5rOt14ZFoIsHibBrrSzRb9bolB-P2KqU
+        '409':
+          description: User not found!
+        '400':
+          description: Incorrect password!
+  /auth/logout/{id}:
+    get:
+      tags:
+        - auth
+      summary: Logs out current logged in user session
+      description: ''
+      operationId: logoutUser
+      parameters:
+        - name: id
+          in: path
+          description: ID of user loging out
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: 'Logout successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+  /auth/hello:
+    get:
+      tags:
+        - auth
+      summary: To check Middleware operation
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Check Middleware successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: 
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: hello manh vu
+        '400':
+          description: Get some error!
+  /refresh_token:
+    get:
+      tags:
+        - refresh token
+      description: ''
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Refresh successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTcwNzA2NDE5MiwiZXhwIjoxNzA3MDY1MDkyfQ.BV7XmrUT0Usp_zoeTNhubhHrjzX5oTX_Kfd7uryBWrM
+        '409':
+          description: User not found!
+        '400':
+          description: Incorrect password!
+  /user/upload_file:
+    post:
+      tags:
+        - user
+      summary: Upload excel file to insert user
+      description: ''
+      operationId: insertUser
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Login successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                     type: boolean
+                     example: true
+                  message:
+                    type: string
+                    example: 10 have inserted in DB, 3 can't insert to DB
+        '409':
+          description: File path not found!
+        '401':
+          description: Don't have data!
+        '400':
+          description: Fail to upload this file!
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        fullname:
+          type: string
+          example: Vũ Xuân Mạnh
+        email:
+          type: string
+          example: vuxuanmanh2002@gmail.com
+        password:
+          type: string
+          description: Hashed by Argon2
+          example: $argon2id$v=19$m=65536,t=3,p=4$+/UdMGCNrs7wgacv9JyRWw$b7ZHLrTwmcFO3qG734GcZefNb4YihYSNRpqT6hq4OFU
+        tokenVersion:
+          type: number
+          example: 0
+      xml:
+        name: user
+  requestBodies:
+    UserRegister:
+      description: User object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              fullname:
+                type: string
+                example: Vũ Xuân Mạnh
+              username:
+                type: string
+                example: manh.vx.ptit
+              email:
+                type: string
+                example: manh.vx@tinasoft.com.vn
+              password:
+                type: string
+                example: 123
+      required: true
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer 
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
